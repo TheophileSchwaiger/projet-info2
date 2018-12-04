@@ -6,6 +6,7 @@ local
    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
    % Translate a note to the extended notation.
+declare
    fun {NoteToExtended Note}
       case Note
       of Name#Octave then
@@ -25,48 +26,40 @@ local
    end
 
    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+declare
    fun {PartitionToTimedList Partition}
 %Modifie la duree
-      declare
       fun {Duration Time Partition}
-	 local
-	    A = {NewCell 0.0}
-	    D
-	 in
-	    local
+	 D
 	    %Calcule la duree de la partition
-	       fun {HowLong Partition}
-		  case Partition of H|T then
-		     case H of silence(duration:D) then
-			A := @A+D
-			{HowLong T}
-		     [] note(name:N octave:O sharp:S duration:D instrument:I) then
-			A := @A+D
-			{HowLong T}
-		     [] Head|Tail then
-			case Head of silence(duration:D) then
-			   A:= @A+D
-			   {HowLong T}
-			[] note(name:N octave:O sharp:S duration:D instrument:I) then
-			   A:=@A+D
-			   {HowLong T}
-			end
-		     end
-		     @A
+	 fun {HowLong Partition Acc}
+	    case Partition of H|T then
+	       case H of silence(duration:D) then
+		  {HowLong T Acc+D}
+	       [] note(name:N octave:O sharp:S duration:D instrument:I) then
+		  {HowLong T Acc+D}
+	       [] Head|Tail then
+		  case Head of silence(duration:D) then
+		     {HowLong T Acc+D}
+		  [] note(name:N octave:O sharp:S duration:D instrument:I) then
+		     {HowLong T Acc+D}
 		  end
-	       end
-	    in
-	       D = {HowLong Partition}
-	       if D\= 0.0 then
-		  {Stretch Time/D Partition}
 	       else
-		  nil
+		  {HowLong T Acc}
 	       end
+	    else
+	       Acc
 	    end
+	 end
+      in
+	 D = {HowLong Partition 0}
+	 if D\= 0.0 then
+	    {Stretch Time/D Partition}
+	 else
+	    nil
 	 end
       end
 %etire la partion d'un facteur Facteur
-      declare
       fun {Stretch Facteur Partition}
 	 case Partition of H|T then
 	    case H of silence(duration:D) then
@@ -91,6 +84,7 @@ local
 	    @N|nil
 	 end
       end
+ 
       fun{Transpose N Partition}%augmente chaque note de la partion de N demi-tons
 	 local
 	    fun{GetNote List Elem Acc}%renvoie la position de lelement dans la liste a partir de acc
@@ -128,7 +122,7 @@ local
 	       [] note(name:Name octave:Octave sharp:S duration:D instrument:I) then
 		  {NoteToExtended {List.nth L {GetNote L Name 1}+N}+Octave+{GetOctave L N {GetNote L Name 1}}}|{Transpose N T}%renvoie la version etendue de la note simplifiee donnee par la lettre dans la liste et loctave
 	       [] Head|Tail then
-		  {Transpose H}|{Transpose T}
+		  {Transpose N H}|{Transpose N T}
 	       end
 	    end
 	 end
@@ -141,14 +135,14 @@ local
 	    H|{PartitionToTimedList T}
 	 [] Head|tail then
 	    {PartitionToTimedList H}|{PartitionToTimedList T}
-	 [] duration(seconds:duration)then
-	    {Duration duration Partition}
-	 [] stretch(factor:factor) then
-	    {Stretch factor Partition}
-	 [] drone(note:noteorchord amount:natural) then
-	    {Drone noteorchord natural}
-	 [] transpose(semitones:integer) then
-	    {Transpose integer Partition}
+	 [] duration(seconds:Duration)then
+	    {Duration Duration Partition}
+	 [] stretch(factor:Factor) then
+	    {Stretch Factor Partition}
+	 [] drone(note:NoteOrChord amount:Natural) then
+	    {Drone NoteOrChord Natural}
+	 [] transpose(semitones:Integer) then
+	    {Transpose Integer Partition}
 	 end
       end
    end
