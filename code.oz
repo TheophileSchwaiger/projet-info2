@@ -6,7 +6,6 @@ local
    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
    % Translate a note to the extended notation.
-declare
    fun {NoteToExtended Note}
       case Note
       of Name#Octave then
@@ -26,7 +25,6 @@ declare
    end
 
    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-declare
    fun {PartitionToTimedList Partition}
 %Modifie la duree
       fun {Duration Time Partition}
@@ -59,7 +57,7 @@ declare
 	    nil
 	 end
       end
-%etire la partion d'un facteur Facteur
+%etire la partition d'un facteur Facteur
       fun {Stretch Facteur Partition}
 	 case Partition of H|T then
 	    case H of silence(duration:D) then
@@ -135,14 +133,17 @@ declare
 	    H|{PartitionToTimedList T}
 	 [] Head|tail then
 	    {PartitionToTimedList H}|{PartitionToTimedList T}
-	 [] duration(seconds:Duration)then
-	    {Duration Duration Partition}
-	 [] stretch(factor:Factor) then
-	    {Stretch Factor Partition}
-	 [] drone(note:NoteOrChord amount:Natural) then
-	    {Drone NoteOrChord Natural}
-	 [] transpose(semitones:Integer) then
-	    {Transpose Integer Partition}
+	 [] duration(seconds:D Partition)then
+	    {Append {Duration D Partition} {PartitionToTimedList T}}
+	 [] stretch(factor:F Partition) then
+	    {Append {Stretch F Partition} {PartitionToTimedList T}}
+	 [] drone(note:NC amount:N) then
+	    {Append {Drone NC N} {PartitionToTimedList T}}
+	 [] transpose(semitones:I Partition) then
+	    {Append {Transpose I Partition} {PartitionToTimedList T}}
+	 [] Atom then
+	    {NoteToExtended Atom}|{PartitionToTimedList T}
+	       
 	 end
       end
    end
@@ -153,7 +154,7 @@ declare
 
    fun {Mix P2T Music}
       % TODO
-      {Project.readFile 'wave/animaux/cow.wav'}
+      {Project.readFile 'wave/animals/cow.wav'}
    end
 
 
