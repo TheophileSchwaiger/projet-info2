@@ -112,13 +112,18 @@ local
 		  @I
 	       end
 	    end
-	    L = [c c# d d# e f f# g g# a a# b]%notes dans une octave
+	    L = [c c#nil d d#nil e f f#nil g g#nil a a#nil b]%notes dans une octave
 	 in
 	    case Partition of H|T then
 	       case H of silence(duration:D) then
 		  silence(duration:D)|{Transpose N T} %si cest un silence rien ne change
 	       [] note(name:Name octave:Octave sharp:S duration:D instrument:I) then
-		  {NoteToExtended {List.nth L {GetNote L Name 1}+N}+Octave+{GetOctave L N {GetNote L Name 1}}}|{Transpose N T}%renvoie la version etendue de la note simplifiee donnee par la lettre dans la liste et loctave
+		  case{List.nth L {GetNote L Name 1}} of A#nil then
+		     {NoteToExtended A#(Octave+{GetOctave L N {GetNote L Name 1}})}|{Transpose N T}
+		  [] A then
+		     {NoteToExtended {VirtualString.toAtom A#(Octave+{GetOctave L N {GetNote L Name 1}})}}|{Transpose N T}
+		  end
+		 %renvoie la version etendue de la note simplifiee donnee par la lettre dans la liste et loctave
 	       [] Head|Tail then
 		  {Transpose N H}|{Transpose N T}
 	       end
@@ -128,7 +133,7 @@ local
    in
       case Partition of H|T then
 	 case H of note(name:Name octave:Octave sharp:S duration:D instrument:I) then
-	    H|{PartitionToTimedList T}
+	    H|{PartitionToTimedList T}%si cest une note ou un silence on enchaine sans rien faire
 	 [] silence(duration:D) then
 	    H|{PartitionToTimedList T}
 	 [] Head|tail then
@@ -142,7 +147,7 @@ local
 	 [] transpose(semitones:I Partition) then
 	    {Append {Transpose I Partition} {PartitionToTimedList T}}
 	 [] Atom then
-	    {NoteToExtended Atom}|{PartitionToTimedList T}
+	    {NoteToExtended Atom}|{PartitionToTimedList T}%si ce nest pas une note etendue
 	       
 	 end
       end
