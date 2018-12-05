@@ -158,14 +158,18 @@ local
    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
    fun {Mix P2T Music}
+
+declare
       fun{Reverse L Acc}
-	    case L of nil then Acc
-	    []H|T then {Reverse T H|Acc}
-	    end
+	 case L of H|T then
+	    {Reverse T H|Acc}
+	 [] nil then Acc
 	 end
+      end
 
 			%repete "A" foi la liste M
-%retourn une liste dechantillons 
+%retourn une liste dechantillons
+      declare
 	 fun{Repeat A B}
 	    if A==0 then nil
 	    else {Append B {Repeat A-1 B}}
@@ -174,7 +178,7 @@ local
 
 			%repete la list OldL de sorte d avoir une liste de "NbrElement" element. 
 			%retourn une liste 
-		%OldL et L doivent etre les meme
+	declare	%OldL et L doivent etre les meme
 	 fun{Loop L1 L2 N}
 	    case L2 of H|T andthen N\=0 then
 	       H|{Loop L1 T N-1}
@@ -191,7 +195,7 @@ local
 			%prend de Start compris a Finish noncompris
 
 			%index commence a 0
-		%Start et Finish sont des integer
+	declare	%Start et Finish sont des integer
 	 fun{Cut S F N}
 	    case N of H|T then 
 	       if S==0 andthen F >0 then
@@ -214,7 +218,7 @@ local
 
 			%retourne une liste d echantillons entre Low et High
 			%les elements de la liste plus petit que low sont ramenes a low et ceux plus haut que hight sont ramene a high
-		%Low et High sont des Float
+	declare	%Low et High sont des Float
 	 fun{Clip Low High M}
 	    case M of H|T then
 	       if H>High then
@@ -229,10 +233,7 @@ local
 	    end
 	 end
 
-
-		
-	 
-      {Project.readFile 'wave/animals/cow.wav'}
+	 {Project.readFile 'wave/animals/cow.wav'}
    end
 
 
