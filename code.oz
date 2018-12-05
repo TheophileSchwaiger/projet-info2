@@ -158,7 +158,80 @@ local
    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
    fun {Mix P2T Music}
-      % TODO
+      fun{Reverse L Acc}
+	    case L of nil then Acc
+	    []H|T then {Reverse T H|Acc}
+	    end
+	 end
+
+			%repete "A" foi la liste M
+%retourn une liste dechantillons 
+	 fun{Repeat A B}
+	    if A==0 then nil
+	    else {Append B {Repeat A-1 B}}
+	    end
+	 end
+
+			%repete la list OldL de sorte d avoir une liste de "NbrElement" element. 
+			%retourn une liste 
+		%OldL et L doivent etre les meme
+	 fun{Loop L1 L2 N}
+	    case L2 of H|T andthen N\=0 then
+	       H|{Loop L1 T N-1}
+	    else
+	       if N\=0 then
+		  {Loop L1 L1 N}
+	       else
+		  nil
+	       end
+	    end
+	 end
+
+			%retourne les  elements de la liste entre Start et Finish-1
+			%prend de Start compris a Finish noncompris
+
+			%index commence a 0
+		%Start et Finish sont des integer
+	 fun{Cut S F N}
+	    case N of H|T then 
+	       if S==0 andthen F >0 then
+		  H|{Cut S F-1 T}
+	       elseif S==0 andthen F==0 then
+		  nil
+	       elseif S>0 then
+		  {Cut S-1 F-1 T}
+	       end
+	    else
+	       if S >0 then
+		  {Cut 0 F-S nil}
+	       elseif S==0 andthen F >0 then
+		  0|{Cut S F-1 nil}
+	       else
+		  nil
+	       end
+	    end
+	 end
+
+			%retourne une liste d echantillons entre Low et High
+			%les elements de la liste plus petit que low sont ramenes a low et ceux plus haut que hight sont ramene a high
+		%Low et High sont des Float
+	 fun{Clip Low High M}
+	    case M of H|T then
+	       if H>High then
+		  High|{Clip Low High T}
+	       elseif H<Low then
+		  Low|{Clip Low High T}
+	       else
+		  H|{Clip Low High T}
+	       end
+	    else
+	       nil
+	    end
+	 end
+
+
+		
+	 
       {Project.readFile 'wave/animals/cow.wav'}
    end
 
